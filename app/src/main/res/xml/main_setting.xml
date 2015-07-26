@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="通用设置">
+        <RingtonePreference
+            android:key="default_ringtone"
+            android:ringtoneType="all"
+            android:title="默认铃声设置" />
+        <Preference
+            android:defaultValue="5"
+            android:key="alarm_volume"
+            android:summary="5"
+            android:title="闹钟音量" />
+        <SwitchPreference
+            android:background="@drawable/tb_bg"
+            android:key="alarm_at_silence"
+            android:title="静音是否响铃" />
+        <SwitchPreference
+            android:background="@drawable/tb_bg"
+            android:key="alarm_increasing"
+            android:summary="铃声渐响至设置的音量"
+            android:title="铃声渐响" />
+        <ListPreference
+            android:defaultValue="10分钟"
+            android:entries="@array/interval_list"
+            android:entryValues="@array/interval_list_values"
+            android:key="alarm_interval"
+            android:title="稍后响铃时间间隔" />
+        <ListPreference
+            android:defaultValue="20分钟"
+            android:entries="@array/alarm_time_list"
+            android:entryValues="@array/alarm_time_list_values"
+            android:key="alarm_all_time"
+            android:title="响铃时间总长度" />
+        <ListPreference
+            android:key="alarm_key_down"
+            android:entries="@array/key_down_list"
+            android:entryValues="@array/key_down_list_values"
+            android:title="按键作用"
+            android:summary="稍后再响" />
+    </PreferenceCategory>
+</PreferenceScreen>

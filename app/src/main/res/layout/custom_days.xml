@@ -1,0 +1,74 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="重复"
+        android:textSize="25sp" />
+
+    <CheckBox
+        android:id="@+id/cb_mon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期一" />
+
+    <CheckBox
+        android:id="@+id/cb_tue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期二" />
+
+    <CheckBox
+        android:id="@+id/cb_wed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期三" />
+
+    <CheckBox
+        android:id="@+id/cb_thu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期四" />
+
+    <CheckBox
+        android:id="@+id/cb_fri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期五" />
+
+    <CheckBox
+        android:id="@+id/cb_sat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期六" />
+
+    <CheckBox
+        android:id="@+id/cb_sun"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="星期日" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_custom_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消" />
+
+        <Button
+            android:id="@+id/btn_custom_sure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确认" />
+    </LinearLayout>
+</LinearLayout>

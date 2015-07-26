@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">闹钟</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">设置</string>
+    <string name="title_activity_setting">闹钟设置</string>
+</resources>

@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:touchscreenBlocksFocus="true">
+
+    <TextView
+        android:id="@+id/tv_alarm_time"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="center_horizontal"
+        android:text="08:00"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/tv_days"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_toRightOf="@+id/tv_alarm_time"
+        android:singleLine="true"
+        android:text="周一" />
+
+    <TextView
+        android:id="@+id/tv_after_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_days"
+        android:layout_toRightOf="@+id/tv_alarm_time"
+        android:singleLine="true"
+        android:text="1天16小时30分钟后响铃"
+        android:textColor="#55000000"
+        android:textSize="12sp" />
+
+    <ToggleButton
+        android:id="@+id/tb_on_off"
+        android:layout_width="75dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/tb_bg"
+        android:textOff="@null"
+        android:textOn="@null" />
+
+</RelativeLayout>
