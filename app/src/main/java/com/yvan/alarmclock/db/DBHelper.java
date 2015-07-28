@@ -15,7 +15,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "create table alarm_clock " +
                     "(_id integer primary key autoincrement,alarm_id integer," +
                     "alarm_time text,alarm_days text,alarm_voice text," +
-                    "is_on integer,is_vibrated integer)";
+                    "alarm_content text,is_on integer,is_vibrated integer)";
     private static final String SQL_UPDATE =
             "alter table " + TABLE_NAME + " add alarm_content text";
 
