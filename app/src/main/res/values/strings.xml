@@ -7,4 +7,5 @@
 
     <color name="action_bar_bg">#5CDCFC</color>
     <string name="title_activity_main_setting">设置</string>
+    <string name="title_activity_alarm">AlarmActivity</string>
 </resources>

@@ -1,8 +1,6 @@
-package com.yvan.alarmclock;
+package com.yvan.alarmclock.activity;
 
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,11 +14,12 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.yvan.alarmclock.R;
 import com.yvan.alarmclock.bean.AlarmClockItem;
 import com.yvan.alarmclock.db.DBDao;
 import com.yvan.alarmclock.db.DBDaoImp;
+import com.yvan.alarmclock.service.AlarmService;
 import com.yvan.alarmclock.utils.MyAdapter;
-import com.yvan.alarmclock.utils.UriUtil;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -80,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initEvent() {
+        Intent intent = new Intent(this, AlarmService.class);
+        startService(intent);
         mDao = new DBDaoImp(this);
         list = mDao.queryAll();
         if (list == null || list.size() == 0) {
@@ -141,9 +142,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initDB() {
-       //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         AlarmClockItem item = new AlarmClockItem();
-        item.setAlarm_id(101);
+        item.setAlarm_id(10001);
         item.setAlarm_time("08:00");
         item.setAlarm_day("周一至周五");
         item.setIsOn(false);
@@ -154,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements
         list.add(item);
 
         item = new AlarmClockItem();
-        item.setAlarm_id(102);
+        item.setAlarm_id(10002);
         item.setAlarm_time("09:00");
         item.setAlarm_day("周六周日");
         item.setIsOn(false);
@@ -209,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements
                 mDao.update(item);
                 list.set(mPosition, item);
                 sortList();
+                AlarmService.sortListByNearTime();
                 adapter.notifyDataSetChanged();
             }
         } else if (requestCode == ADD_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -218,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements
                 mDao.insert(item);
                 list.add(item);
                 sortList();
+                AlarmService.sortListByNearTime();
                 adapter.notifyDataSetChanged();
             }
         }

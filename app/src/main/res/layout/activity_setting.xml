@@ -7,10 +7,11 @@
     <RelativeLayout
         android:id="@+id/rl_choice_days"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:padding="5dp">
+        android:background="@drawable/rl_selector"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/text_repeat"
@@ -44,10 +45,11 @@
     <RelativeLayout
         android:id="@+id/rl_choice_voice"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:padding="5dp">
+        android:background="@drawable/rl_selector"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/text_voice"
@@ -81,10 +83,11 @@
     <RelativeLayout
         android:id="@+id/rl_choice_vib"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:padding="5dp">
+        android:background="@drawable/rl_selector"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/text_vib"
@@ -117,13 +120,51 @@
             android:background="#55000000"></View>
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/rl_et_content"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/rl_selector"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:id="@+id/text_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="内容提示" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/text_content"
+            android:text="响铃界面显示的内容"
+            android:textColor="#55000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text=">" />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="#55000000"></View>
+    </RelativeLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="闹铃时间设置"
-        android:textSize="20sp" />
+        android:text="闹钟时间设置"
+        android:textSize="18sp" />
 
     <TimePicker
 

@@ -19,7 +19,7 @@ public class UriUtil {
         if (title == null || title.equals("")) {
             if (uri.toString().contains("file")) {
                 String url = uri.toString();
-                title = url.substring(url.lastIndexOf("/"), url.lastIndexOf("."));
+                title = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
             }
         }
 

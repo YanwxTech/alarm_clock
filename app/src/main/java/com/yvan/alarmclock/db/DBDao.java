@@ -1,5 +1,7 @@
 package com.yvan.alarmclock.db;
 
+import com.yvan.alarmclock.bean.AlarmClockItem;
+
 import java.util.List;
 
 /**
@@ -9,7 +11,9 @@ public interface DBDao <T>{
     void insert(T t);
     void delete(int id);
     List<T> queryAll();
-    T query(int id);
+    List<T> query(boolean is_on);
     void update(T t);
     void update(int alarm_id,boolean isOn);
+
+    List<T> queryBySQL(String sql,String[] selectionArgs);
 }

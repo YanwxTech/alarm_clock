@@ -1,4 +1,4 @@
-package com.yvan.alarmclock;
+package com.yvan.alarmclock.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,15 +10,16 @@ import android.preference.PreferenceFragment;
 import android.preference.RingtonePreference;
 import android.widget.SeekBar;
 
+import com.yvan.alarmclock.R;
 import com.yvan.alarmclock.utils.UriUtil;
 
 /**
  * Created by Yvan on 2015/7/26.
  */
-public class SettingFragment extends PreferenceFragment {
+public class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
+
     private Preference setVolume;
     private ListPreference setInterval, setAllTime, setAlarmKeyDown;
-    ;
     private RingtonePreference setDefaultRingtone;
 
     @Override
@@ -54,34 +55,19 @@ public class SettingFragment extends PreferenceFragment {
                 return true;
             }
         });
-        setInterval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
-        });
-        setAllTime.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
-        });
-
-        setAlarmKeyDown.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
-        });
+        setInterval.setOnPreferenceChangeListener(this);
+        setAllTime.setOnPreferenceChangeListener(this);
+        setAlarmKeyDown.setOnPreferenceChangeListener(this);
 
         setDefaultRingtone.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String title = UriUtil.uriToName(getActivity(), Uri.parse((String) newValue));
-                preference.setSummary(title);
+                if (title == null || title.equals("")) {
+                    preference.setSummary((String) newValue);
+                } else {
+                    preference.setSummary(title);
+                }
                 return true;
             }
         });
@@ -91,13 +77,13 @@ public class SettingFragment extends PreferenceFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("闹钟音量设置");
         final SeekBar seekBar = new SeekBar(getActivity());
-        seekBar.setMax(100);
-        seekBar.setProgress((int) (setVolume.getSharedPreferences().getInt(setVolume.getKey(), 0) / 7f * 100));
+        seekBar.setMax(7);
+        seekBar.setProgress(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 0));
         builder.setView(seekBar);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                int volume = (int) (seekBar.getProgress() * 7 / 100f);
+                int volume = (seekBar.getProgress());
                 setVolume.setSummary(volume + "");
                 setVolume.getEditor().putInt(setVolume.getKey(), volume).commit();
             }
@@ -106,4 +92,9 @@ public class SettingFragment extends PreferenceFragment {
         builder.show();
     }
 
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        preference.setSummary((String) newValue);
+        return true;
+    }
 }

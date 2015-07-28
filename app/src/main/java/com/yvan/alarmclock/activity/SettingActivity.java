@@ -1,4 +1,4 @@
-package com.yvan.alarmclock;
+package com.yvan.alarmclock.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,15 +10,20 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.yvan.alarmclock.R;
 import com.yvan.alarmclock.bean.AlarmClockItem;
 import com.yvan.alarmclock.utils.TimeUtil;
 import com.yvan.alarmclock.utils.UriUtil;
@@ -29,6 +34,7 @@ import java.util.List;
 
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
 
+
     private AlarmClockItem alarmClockItem;
 
     private RelativeLayout rl_choice_days;
@@ -37,10 +43,11 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     private TextView tv_choice_voice;
     private RelativeLayout rl_set_vibrated;
     private ToggleButton tb_isVibrated;
+    private RelativeLayout rl_et_content;
     private TimePicker tp_alarm_picker;
     private int add_or_set;
     private static final int CODE_PICK_RINGTONE = 0X111;
-
+    private static final int CODE_PICK_SYSTEM_RINGTONE = 0x110;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +69,31 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     private void initActionBar() {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayShowCustomEnabled(true);
-        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHideOffset(0);
         actionbar.setCustomView(R.layout.top_actionbar);
+        ImageButton iv_back= (ImageButton) actionbar.getCustomView()
+                .findViewById(R.id.iv_back);
+        iv_back.setVisibility(View.VISIBLE);
         ((TextView) actionbar.getCustomView()
                 .findViewById(R.id.text_actionbar_title))
                 .setText("闹钟设置");
+        TextView tv_sure =((TextView) actionbar.getCustomView()
+                .findViewById(R.id.text_actionbar_sure));
+                tv_sure.setVisibility(View.VISIBLE);
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitSure();
+            }
+        });
+
+        tv_sure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alarmItemSetting();
+            }
+        });
+
     }
 
     private void initView() {
@@ -76,6 +103,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         tv_choice_days = (TextView) findViewById(R.id.tv_show_choice_days);
         tv_choice_voice = (TextView) findViewById(R.id.tv_show_choice_voice);
         tb_isVibrated = (ToggleButton) findViewById(R.id.tb_is_vibrated);
+        rl_et_content = (RelativeLayout) findViewById(R.id.rl_et_content);
         tp_alarm_picker = (TimePicker) findViewById(R.id.tp_alarm_time);
     }
 
@@ -83,6 +111,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         rl_choice_days.setOnClickListener(this);
         rl_choice_voice.setOnClickListener(this);
         rl_set_vibrated.setOnClickListener(this);
+        rl_et_content.setOnClickListener(this);
         tp_alarm_picker.setIs24HourView(true);
 
         String choice_days = alarmClockItem.getAlarm_day();
@@ -92,9 +121,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         String choice_voice = alarmClockItem.getVoicePath();
         if (choice_voice != null) {
-            String title = UriUtil.uriToName(this, Uri.parse(choice_voice));
-            if (title != null)
-                tv_choice_voice.setText(title);
+            if (choice_voice.equals("默认铃声")) {
+                tv_choice_voice.setText(choice_voice);
+            } else {
+                String title = UriUtil.uriToName(this, Uri.parse(choice_voice));
+                if (title != null)
+                    tv_choice_voice.setText(title);
+            }
         }
 //        else {
 //            Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -116,30 +149,30 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_setting, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                exitSure();
-                break;
-            case R.id.action_sure:
-                alarmItemSetting();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_setting, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//        switch (id) {
+//            case android.R.id.home:
+//                exitSure();
+//                break;
+//            case R.id.action_sure:
+//                alarmItemSetting();
+//                break;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -264,10 +297,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         alarmClockItem.setIsVibrated(isVibrated);
         if (ringtoneUri != null) {
             alarmClockItem.setVoicePath(ringtoneUri + "");
+        } else {
+            alarmClockItem.setVoicePath("默认铃声");
         }
         alarmClockItem.setAlarm_day(tv_choice_days.getText().toString());
         if (add_or_set == 1) {
-            int id = (int) (System.currentTimeMillis() % 100000);
+            int id = (int) (System.currentTimeMillis() / 1000);
             alarmClockItem.setAlarm_id(id);
             alarmClockItem.setIsOn(true);
         }
@@ -288,35 +323,101 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 unregisterForContextMenu(v);
                 break;
             case R.id.rl_choice_voice:
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("audio/*;application/ogg");
-                Intent wrapIntent = Intent.createChooser(intent, "选择铃声");
-                startActivityForResult(wrapIntent, CODE_PICK_RINGTONE);
+                showSelectRingtoneDialog();
                 break;
             case R.id.rl_choice_vib:
                 tb_isVibrated.setChecked(!tb_isVibrated.isChecked());
                 break;
+            case R.id.rl_et_content:
+                showEditContentDialog();
+                break;
         }
+    }
+
+    private void showSelectRingtoneDialog() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("铃声选择");
+        builder.setItems(new String[]{"系统自带铃声", "自定义铃声"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        systemSelect();
+                        break;
+                    case 1:
+                        customSelect();
+                        break;
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void customSelect() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("audio/*;application/ogg");
+        Intent wrapIntent = Intent.createChooser(intent, "选择铃声");
+        startActivityForResult(wrapIntent, CODE_PICK_RINGTONE);
+    }
+
+    private void systemSelect() {
+        Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "闹钟铃声选择");
+        startActivityForResult(intent, CODE_PICK_SYSTEM_RINGTONE);
+    }
+
+    private void showEditContentDialog() {
+        final View view = LayoutInflater.from(this).inflate(R.layout.et_content, null);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setView(view);
+        final EditText et = (EditText) view.findViewById(R.id.et_content);
+        String content = alarmClockItem.getAlarm_content();
+        if (content != null) {
+            et.setText(content);
+        }
+        builder.setTitle("响铃时显示内容");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                alarmClockItem.setAlarm_content(et.getText().toString());
+            }
+        });
+        builder.setNegativeButton("取消", null);
+        builder.show();
     }
 
     private Uri ringtoneUri;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == CODE_PICK_RINGTONE) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                ringtoneUri = uri;
-                String title = UriUtil.uriToName(this, uri);
-                if (title != null && !title.equals(""))
-                    tv_choice_voice.setText(title);
-                else {
-                    Toast.makeText(this, "所选铃声无效，保持原有设置", Toast.LENGTH_SHORT).show();
-                }
-            } else {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CODE_PICK_RINGTONE:
+                    Uri uri = data.getData();
+                    uriOperation(uri);
+
+                    break;
+                case CODE_PICK_SYSTEM_RINGTONE:
+                    Uri uri1 = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    uriOperation(uri1);
+                    break;
+            }
+        }
+
+    }
+
+    private void uriOperation(Uri uri) {
+        if (uri != null) {
+            ringtoneUri = uri;
+            String title = UriUtil.uriToName(this, uri);
+            if (title != null && !title.equals(""))
+                tv_choice_voice.setText(title);
+            else {
                 Toast.makeText(this, "所选铃声无效，保持原有设置", Toast.LENGTH_SHORT).show();
             }
-
+        } else {
+            Toast.makeText(this, "所选铃声无效，保持原有设置", Toast.LENGTH_SHORT).show();
         }
     }
 }

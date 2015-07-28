@@ -12,6 +12,7 @@ public class AlarmClockItem implements Serializable {
     private boolean isOn;
     private boolean isVibrated;
     private String voicePath;
+    private String alarm_content;
 
     public Integer getAlarm_id() {
         return alarm_id;
@@ -59,5 +60,13 @@ public class AlarmClockItem implements Serializable {
 
     public void setVoicePath(String voicePath) {
         this.voicePath = voicePath;
+    }
+
+    public String getAlarm_content() {
+        return alarm_content;
+    }
+
+    public void setAlarm_content(String alarm_content) {
+        this.alarm_content = alarm_content;
     }
 }

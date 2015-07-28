@@ -61,7 +61,7 @@ public class TimeUtil {
         return result;
     }
 
-    public static String getAfterTime(String time, String days) {
+    private static int[] getAfterTime(String time, String days) {
         Calendar calendar = Calendar.getInstance();
         int nowDay = (calendar.getTime().getDay() + 6) % 7;
         int nowHour = calendar.getTime().getHours();
@@ -123,12 +123,32 @@ public class TimeUtil {
             spaceHour += 24;
         }
         spaceDay = (spaceDay + 7) % 7;
+
+        return new int[]{spaceDay, spaceHour, spaceMinute};
+
+    }
+
+
+    public static int getAfterMinutes(String time, String days) {
+        int[] times = getAfterTime(time, days);
+        int minutes = times[0] * 24 * 60 + times[1] * 60 + times[2];
+        return minutes;
+    }
+
+    public static String getAfterString(String time, String days) {
+        int[] times = getAfterTime(time, days);
+        int spaceDay = times[0];
+        int spaceHour = times[1];
+        int spaceMinute = times[2];
         String result = "";
-        if (spaceDay == 0) {
+        if (spaceDay == 0 && spaceHour != 0) {
             result = String.format("%1$d个小时%2$d分钟后响铃", spaceHour, spaceMinute);
+        } else if (spaceDay == 0 && spaceHour == 0) {
+            result = String.format("%1$d分钟后响铃", spaceMinute);
         } else {
             result = String.format("%1$d天%2$d个小时%3$d分钟后响铃", spaceDay, spaceHour, spaceMinute);
         }
         return result;
     }
+
 }

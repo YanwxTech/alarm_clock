@@ -9,6 +9,7 @@ import com.yvan.alarmclock.R;
 import com.yvan.alarmclock.bean.AlarmClockItem;
 import com.yvan.alarmclock.db.DBDao;
 import com.yvan.alarmclock.db.DBDaoImp;
+import com.yvan.alarmclock.service.AlarmService;
 
 import java.util.List;
 
@@ -34,16 +35,17 @@ public class MyAdapter extends CommonAdapter<AlarmClockItem> {
             @Override
             public void onClick(View v) {
                 dao.update(item.getAlarm_id(), tb.isChecked());
+                AlarmService.sortListByNearTime();
                 item.setIsOn(tb.isChecked());
                 notifyDataSetChanged();
                 if (tb.isChecked()) {
-                    Toast.makeText(context, TimeUtil.getAfterTime(item.getAlarm_time(), item.getAlarm_day()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, TimeUtil.getAfterString(item.getAlarm_time(), item.getAlarm_day()), Toast.LENGTH_SHORT).show();
                 }
             }
         });
         holder.setText(R.id.tv_alarm_time, item.getAlarm_time())
                 .setText(R.id.tv_days, item.getAlarm_day())
-                .setText(R.id.tv_after_time, tb.isChecked() ? TimeUtil.getAfterTime(item.getAlarm_time(), item.getAlarm_day()) : "未启用");
+                .setText(R.id.tv_after_time, tb.isChecked() ? TimeUtil.getAfterString(item.getAlarm_time(), item.getAlarm_day()) : "未启用");
 
     }
 
