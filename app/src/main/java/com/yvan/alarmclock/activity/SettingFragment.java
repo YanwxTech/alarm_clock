@@ -32,6 +32,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 
 
     private void initPreference() {
+
         setVolume = findPreference("alarm_volume");
         setInterval = (ListPreference) findPreference("alarm_interval");
         setAllTime = (ListPreference) findPreference("alarm_all_time");
@@ -44,7 +45,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         } else {
             setDefaultRingtone.setSummary(title);
         }
-        setVolume.setSummary(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 5) + "");
+        setVolume.setSummary(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 5) + " (最大值为7)");
         setInterval.setSummary(setInterval.getEntry());
         setAllTime.setSummary(setAllTime.getEntry());
         setAlarmKeyDown.setSummary(setAlarmKeyDown.getEntry());
@@ -88,7 +89,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 int volume = (seekBar.getProgress());
-                setVolume.setSummary(volume + "");
+                setVolume.setSummary(volume + " (最大值为7)");
                 setVolume.getEditor().putInt(setVolume.getKey(), volume).commit();
             }
         });

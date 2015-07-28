@@ -17,7 +17,7 @@ public class ViewHolder {
     public ViewHolder(Context context, ViewGroup parent, int layoutId,
                       int position) {
         this.mPosition = position;
-        this.mViews = new SparseArray<View>();
+        this.mViews = new SparseArray<>();
         this.mConvertView = LayoutInflater.from(context).inflate(layoutId,
                 parent, false);
         this.mConvertView.setTag(this);
@@ -49,13 +49,13 @@ public class ViewHolder {
         return this;
     }
 
-    public void setImage(int viewId, Bitmap bitmap) {
+/*    public void setImage(int viewId, Bitmap bitmap) {
         ((ImageView) getView(viewId)).setImageBitmap(bitmap);
     }
 
     public void setImage(int viewId, int imageId) {
         ((ImageView) getView(viewId)).setImageResource(imageId);
-    }
+    }*/
 
     public int getPosition() {
         return mPosition;

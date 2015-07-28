@@ -22,24 +22,24 @@ public class AlarmPlay {
 
     public AlarmPlay(Context context, Uri uri) {
         mUri = uri;
-        Log.i("mUri", mUri + "");
+        //Log.i("mUri", mUri + "");
         mContext = context;
-        spf = PreferenceManager.getDefaultSharedPreferences(mContext);
+        spf = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public void startAlarm() {
-        if (mUri == null || mUri.equals("") || mUri.toString().equals("默认铃声")) {
+        if (mUri == null || mUri.toString().equals("默认铃声") || mUri.equals("")) {
             mUri = getDefaultRingtoneUri();
         }
         try {
-            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mp.setAudioStreamType(AudioManager.STREAM_ALARM);
             mp.setDataSource(mContext, mUri);
             mp.setLooping(true);
+            mp.prepare();
             int volume = spf.getInt("alarm_volume", 5);
             boolean alarm_increasing = spf.getBoolean("alarm_increasing", false);
-            mp.prepare();
             if (alarm_increasing) {
-                volumeMinToMax(volume);
+                volumeMinToMax(volume / 7f);
             } else {
                 mp.setVolume(volume / 7f, volume / 7f);
             }
@@ -49,6 +49,9 @@ public class AlarmPlay {
         }
     }
 
+    /**
+     * 声音渐响
+     */
     private void volumeMinToMax(final float max) {
         new Thread() {
             @Override
@@ -69,7 +72,7 @@ public class AlarmPlay {
                             break;
                         }
                         try {
-                            Thread.currentThread().sleep(2000);
+                            Thread.currentThread().sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -83,7 +86,7 @@ public class AlarmPlay {
     private Uri getDefaultRingtoneUri() {
         String uri = spf.getString("default_ringtone", "");
         Log.i("default_ringtone", uri);
-        if (uri == null || uri.equals("") || uri.equals("系统默认铃声")) {
+        if (uri.equals("系统默认铃声") || uri.equals("")) {
             return RingtoneManager.getActualDefaultRingtoneUri(mContext, RingtoneManager.TYPE_ALARM);
         } else {
             return Uri.parse(uri);
@@ -106,9 +109,9 @@ public class AlarmPlay {
         }
     }
 
-    public void pauseAlarm() {
+/*    public void pauseAlarm() {
         if (mp != null && mp.isPlaying()) {
             mp.pause();
         }
-    }
+    }*/
 }

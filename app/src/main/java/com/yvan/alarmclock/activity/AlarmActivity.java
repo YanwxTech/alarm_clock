@@ -1,15 +1,24 @@
 package com.yvan.alarmclock.activity;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,11 +32,23 @@ import com.yvan.alarmclock.R;
 import com.yvan.alarmclock.service.AlarmService;
 import com.yvan.alarmclock.utils.AlarmPlay;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class AlarmActivity extends Activity {
     private static final int IS_SHOULD_END_RINGTONE = 0x101;
     private long startTime;
     private AlarmPlay ap;
     private AlarmService.MyBinder mBinder;
+
+    private String ring_time;
+    private String keyDownOperation;
+    private String alarm_content;
+    private Vibrator vibrator;//震动管理
+    private boolean silence_ring = true;//静音时响铃
+
+    private Timer mTimer;//计时器，用以判断响铃时间
+
     private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -39,53 +60,75 @@ public class AlarmActivity extends Activity {
 
         }
     };
-    private Vibrator vibrator;
-    private String ring_time;
-    private String keyDownOperation;
-    private String alarm_content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
+
+        Intent intent = new Intent(this, AlarmService.class);
+        bindService(intent, conn, BIND_AUTO_CREATE);
+
+        Intent i = getIntent();
+
+        boolean isVibrated = i.getBooleanExtra("is_vibrated", false);//是否开启震动
+        if (isVibrated) {
+            startVibrate();
+        }
+
+        boolean is_silence_ring = i.getBooleanExtra("is_silence_ring", true);//静音是否响铃
+        if (!is_silence_ring) {
+
+            AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+//            int alarm_volume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+//            int ring_volume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
+            int system_volume = audioManager.getStreamVolume(AudioManager.STREAM_SYSTEM);
+//            Log.i("Volume", "system_volume:" + system_volume +
+//                    ",alarm_volume:" + alarm_volume + ",ring_volume:" + ring_volume);
+            //静音状态
+            if (system_volume == 0) {
+                silence_ring = false;
+            }
+        }
+
+        if (silence_ring) {
+            String url = i.getStringExtra("ringtone_uri");
+            if (url != null) {
+                Uri uri = Uri.parse(url);
+                ap = new AlarmPlay(this, uri);
+                ap.startAlarm();
+                startTime = System.currentTimeMillis();
+            }
+        }
+
+        alarm_content = i.getStringExtra("alarm_content");//显示提醒内容
+        if (alarm_content != null) {
+            ((TextView) findViewById(R.id.tv_show_content)).setText(alarm_content);
+        }
+        ring_time = i.getStringExtra("ring_time");
+        keyDownOperation = i.getStringExtra("alarm_key_down");
+
         findViewById(R.id.tv_alarm_after).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alarmAfter();
             }
         });
+        animForTV();//向上滑动提示动画
 
-        Intent intent = new Intent(this, AlarmService.class);
-        bindService(intent, conn, BIND_AUTO_CREATE);
-        Intent i = getIntent();
-        String url = i.getStringExtra("ringtone_uri");
-        if (url != null) {
-            Uri uri = Uri.parse(url);
-            ap = new AlarmPlay(this, uri);
-            ap.startAlarm();
-            startTime = System.currentTimeMillis();
-            // new Thread(new TimeEndThread()).start();
-        }
+        endAlarmTask();//开启计时关闭任务
 
-        animForTV();
-        boolean isVibrated = i.getBooleanExtra("is_vibrated", false);
-        if (isVibrated) {
-            startVibrate();
-        }
+        registerReceiver(keyDownReceiver, new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
 
-        alarm_content = i.getStringExtra("alarm_content");
-        if (alarm_content != null) {
-            ((TextView) findViewById(R.id.tv_show_content)).setText(alarm_content);
-        }
-        ring_time = i.getStringExtra("ring_time");
-        keyDownOperation = i.getStringExtra("alarm_key_down");
     }
 
-
+    /**
+     * 开启震动
+     */
     private void startVibrate() {
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(
-                new long[]{10, 50, 80, 300, 100, 400}, 0);
+                new long[]{50, 100, 75, 200, 100, 300, 200, 400}, 0);
     }
 
     private void animForTV() {
@@ -114,6 +157,12 @@ public class AlarmActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        vibrator.cancel();
+        mTimer.cancel();
+        if (ap != null) {
+            ap.stopAlarm();
+        }
+        unregisterReceiver(keyDownReceiver);
         unbindService(conn);
     }
 
@@ -139,20 +188,19 @@ public class AlarmActivity extends Activity {
         return super.onTouchEvent(event);
     }
 
+    /**
+     * 稍后再响
+     */
+
     private void alarmAfter() {
-        vibrator.cancel();
-        if (ap != null) {
-            ap.stopAlarm();
-        }
         mBinder.alarmAfter();
         this.finish();
     }
 
+    /**
+     * 关闭闹钟
+     */
     private void cancelAlarm() {
-        vibrator.cancel();
-        if (ap != null) {
-            ap.stopAlarm();
-        }
         this.finish();
     }
 
@@ -163,24 +211,31 @@ public class AlarmActivity extends Activity {
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_MENU:
             case KeyEvent.KEYCODE_POWER:
-            case KeyEvent.KEYCODE_PLUS:
-            case KeyEvent.KEYCODE_MINUS:
-                return handleKeyEvent();
+            case KeyEvent.KEYCODE_SEARCH:
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                return handleKeyEvent(keyCode);
         }
-        return super.onKeyDown(keyCode, event);
+        return true;
     }
 
-    private boolean handleKeyEvent() {
+    /**
+     * 处理按键事件
+     */
+    private boolean handleKeyEvent(int keyCode) {
+        Log.i("handleKeyEvent", "keyCode:" + keyCode);
         if (keyDownOperation == null) {
             keyDownOperation = "稍后再响";
         }
+        Log.i("keyDownOperation", keyDownOperation);
         if ("稍后再响".equals(keyDownOperation)) {
             alarmAfter();
 
-        } else if ("关闭闹钟".equals(keyDownOperation)) {
+        } else if ("关闭".equals(keyDownOperation)) {
             cancelAlarm();
 
-        } else {
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+                keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             return false;
         }
         return true;
@@ -191,41 +246,84 @@ public class AlarmActivity extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case IS_SHOULD_END_RINGTONE:
+                    showOnNotification();
                     cancelAlarm();
                     break;
             }
         }
     };
 
-    class TimeEndThread implements Runnable {
+    private void showOnNotification() {
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentText("响铃总时间：" + ring_time);
+        builder.setContentTitle("您错过了一个闹钟");
+        builder.setWhen(System.currentTimeMillis());
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        builder.setContentIntent(pIntent);
+        builder.setAutoCancel(true);
+        builder.setDefaults(Notification.DEFAULT_LIGHTS);
+        Notification notification = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            notification = builder.build();
+        } else {
+            notification = builder.getNotification();
+        }
 
-        @Override
-        public void run() {
-            while (true) {
-                if (ring_time == null)
-                    ring_time = "20分钟";
-                int time = stringToInt(ring_time);
-                if (time == -1) {
-                    return;
-                } else if (System.currentTimeMillis() - startTime > time) {
-                    try {
-                        Thread.currentThread().sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else {
+        manager.notify(0, notification);
+    }
+
+    private void endAlarmTask() {
+
+        if (ring_time == null) {
+            ring_time = "20分钟";
+        }
+        final int time = stringToInt(ring_time);
+        if (time == -1) {
+            return;
+        }
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - startTime >= time) {
                     mHandler.sendEmptyMessage(IS_SHOULD_END_RINGTONE);
                 }
             }
-        }
+        }, 1000 * 60);
+    }
 
-        private int stringToInt(String ring_time) {
-            if (ring_time.equals("永不停止")) {
-                return -1;
-            } else {
-                int minutes = Integer.parseInt(ring_time.substring(0, ring_time.indexOf("分")));
-                return minutes * 60 * 1000;
-            }
+    private int stringToInt(String ring_time) {
+        if (ring_time.equals("永不停止")) {
+            return -1;
+        } else {
+            int minutes = Integer.parseInt(ring_time.substring(0, ring_time.indexOf("分")));
+            return minutes * 60 * 1000;
         }
     }
+
+    private BroadcastReceiver keyDownReceiver = new BroadcastReceiver() {
+        String SYSTEM_REASON = "reason";
+        String SYSTEM_HOME_KEY = "homekey";
+        String SYSTEM_HOME_KEY_LONG = "recentapps";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)) {
+                String reason = intent.getStringExtra(SYSTEM_REASON);
+                if (reason != null) {
+
+                    if (reason.equals(SYSTEM_HOME_KEY)) {
+                        //home键
+                        handleKeyEvent(0);
+                    } else if (reason.equals(SYSTEM_HOME_KEY_LONG)) {
+                        //最近任务键
+                        handleKeyEvent(0);
+                    }
+                }
+            }
+        }
+    };
 }

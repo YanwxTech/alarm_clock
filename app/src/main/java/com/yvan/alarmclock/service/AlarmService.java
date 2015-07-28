@@ -54,11 +54,13 @@ public class AlarmService extends Service {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         String ring_time = spf.getString("alarm_all_time", "20分钟");
         String keyDownOperation = spf.getString("alarm_key_down", "10分钟");
+        boolean is_silence_ring = spf.getBoolean("alarm_at_silence",true);
         intent.putExtra("ringtone_uri", afterItem.getVoicePath());
         intent.putExtra("is_vibrated", afterItem.isVibrated());
         intent.putExtra("alarm_content",afterItem.getAlarm_content());
         intent.putExtra("ring_time", ring_time);
-        intent.putExtra("interval", keyDownOperation);
+        intent.putExtra("alarm_key_down", keyDownOperation);
+        intent.putExtra("is_silence_ring",is_silence_ring);
         startActivity(intent);
     }
 

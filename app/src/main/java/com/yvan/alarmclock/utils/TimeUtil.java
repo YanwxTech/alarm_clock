@@ -8,6 +8,7 @@ import java.util.Calendar;
  * Created by Yvan on 2015/7/7.
  */
 public class TimeUtil {
+
     public static final String ONLY_ONCE = "只响一次";
     public static final String EVERYDAY = "每天";
     public static final String WEEKDAY = "周一至周五";
@@ -66,7 +67,7 @@ public class TimeUtil {
         int nowDay = (calendar.getTime().getDay() + 6) % 7;
         int nowHour = calendar.getTime().getHours();
         int nowMinute = calendar.getTime().getMinutes();
-        Log.i("nowTime", "weekday:" + nowDay + ",hour:" + nowHour + ",minute:" + nowMinute);
+        //Log.i("nowTime", "weekday:" + nowDay + ",hour:" + nowHour + ",minute:" + nowMinute);
         String[] times = time.split(":");
         int hour = Integer.parseInt(times[0]);
         int minute = Integer.parseInt(times[1]);
