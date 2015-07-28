@@ -39,8 +39,12 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         setAlarmKeyDown = (ListPreference) findPreference("alarm_key_down");
         Uri uri = Uri.parse(setDefaultRingtone.getSharedPreferences().getString(setDefaultRingtone.getKey(), ""));
         String title = UriUtil.uriToName(getActivity(), uri);
-        setDefaultRingtone.setSummary(title);
-        setVolume.setSummary(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 0) + "");
+        if (title == null || title.equals("")) {
+            setDefaultRingtone.setSummary(uri.toString());
+        } else {
+            setDefaultRingtone.setSummary(title);
+        }
+        setVolume.setSummary(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 5) + "");
         setInterval.setSummary(setInterval.getEntry());
         setAllTime.setSummary(setAllTime.getEntry());
         setAlarmKeyDown.setSummary(setAlarmKeyDown.getEntry());
