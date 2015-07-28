@@ -12,10 +12,10 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 2;
     public static final String TABLE_NAME = "alarm_clock";
     private static final String SQL_CREATE =
-            "create table alarm_clock " +
+            "create table " + TABLE_NAME +
                     "(_id integer primary key autoincrement,alarm_id integer," +
                     "alarm_time text,alarm_days text,alarm_voice text," +
-                    "is_on integer,is_vibrated integer)";
+                    "alarm_content text,is_on integer,is_vibrated integer)";
     private static final String SQL_UPDATE =
             "alter table " + TABLE_NAME + " add alarm_content text";
 
