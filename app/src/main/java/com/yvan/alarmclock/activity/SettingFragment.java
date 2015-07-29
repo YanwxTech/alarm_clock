@@ -83,7 +83,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         builder.setTitle("闹钟音量设置");
         final SeekBar seekBar = new SeekBar(getActivity());
         seekBar.setMax(7);
-        seekBar.setProgress(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 0));
+        seekBar.setProgress(setVolume.getSharedPreferences().getInt(setVolume.getKey(), 5));
         builder.setView(seekBar);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override

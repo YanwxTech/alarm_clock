@@ -119,6 +119,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         String choice_voice = alarmClockItem.getVoicePath();
         if (choice_voice != null) {
+            ringtoneUri = Uri.parse(choice_voice);
             if (choice_voice.equals("默认铃声")) {
                 tv_choice_voice.setText(choice_voice);
             } else {
@@ -277,8 +278,8 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         if (add_or_set == 1) {
             int id = (int) (System.currentTimeMillis() / 1000);
             alarmClockItem.setAlarm_id(id);
-            alarmClockItem.setIsOn(true);
         }
+        alarmClockItem.setIsOn(true);
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
         bundle.putSerializable("list_item", alarmClockItem);
@@ -364,16 +365,17 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Uri uri;
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case CODE_PICK_RINGTONE:
-                    Uri uri = data.getData();
+                    uri = data.getData();
                     uriOperation(uri);
 
                     break;
                 case CODE_PICK_SYSTEM_RINGTONE:
-                    Uri uri1 = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-                    uriOperation(uri1);
+                    uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    uriOperation(uri);
                     break;
             }
         }

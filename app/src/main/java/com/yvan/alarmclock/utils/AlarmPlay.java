@@ -10,12 +10,14 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Yvan on 2015/7/27.
  */
 public class AlarmPlay {
-    private MediaPlayer mp = new MediaPlayer();
+    private volatile MediaPlayer mp = new MediaPlayer();
     private Uri mUri;
     private Context mContext;
     private SharedPreferences spf;
@@ -39,6 +41,7 @@ public class AlarmPlay {
             int volume = spf.getInt("alarm_volume", 5);
             boolean alarm_increasing = spf.getBoolean("alarm_increasing", false);
             if (alarm_increasing) {
+                mp.setVolume(0,0);
                 volumeMinToMax(volume / 7f);
             } else {
                 mp.setVolume(volume / 7f, volume / 7f);
@@ -49,14 +52,16 @@ public class AlarmPlay {
         }
     }
 
+    private float i = 0;
+
     /**
      * 声音渐响
      */
     private void volumeMinToMax(final float max) {
-        new Thread() {
+      final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                float i = 0;
                 if (mp != null) {
                     boolean isPlaying = false;
                     try {
@@ -64,23 +69,18 @@ public class AlarmPlay {
                     } catch (Exception e) {
                         isPlaying = true;
                     }
-                    while (isPlaying) {
-                        mp.setVolume(i, i);
+                    if (isPlaying) {
                         i += 0.05;
+                        Log.i("volume", "i:" + i);
+                        mp.setVolume(i, i);
                         if (i > max) {
                             mp.setVolume(max, max);
-                            break;
-                        }
-                        try {
-                            Thread.currentThread().sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            timer.cancel();
                         }
                     }
                 }
             }
-        }.start();
-
+        }, 500,1000);
     }
 
     private Uri getDefaultRingtoneUri() {

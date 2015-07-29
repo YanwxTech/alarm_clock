@@ -54,13 +54,13 @@ public class AlarmService extends Service {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         String ring_time = spf.getString("alarm_all_time", "20分钟");
         String keyDownOperation = spf.getString("alarm_key_down", "10分钟");
-        boolean is_silence_ring = spf.getBoolean("alarm_at_silence",true);
+        boolean is_silence_ring = spf.getBoolean("alarm_at_silence", true);
         intent.putExtra("ringtone_uri", afterItem.getVoicePath());
         intent.putExtra("is_vibrated", afterItem.isVibrated());
-        intent.putExtra("alarm_content",afterItem.getAlarm_content());
+        intent.putExtra("alarm_content", afterItem.getAlarm_content());
         intent.putExtra("ring_time", ring_time);
         intent.putExtra("alarm_key_down", keyDownOperation);
-        intent.putExtra("is_silence_ring",is_silence_ring);
+        intent.putExtra("is_silence_ring", is_silence_ring);
         startActivity(intent);
     }
 
@@ -106,7 +106,6 @@ public class AlarmService extends Service {
         if (items != null && items.size() > 0) {
             minutes = TimeUtil.getAfterMinutes(items.get(0).getAlarm_time(), items.get(0).getAlarm_day());
             Log.i("resetMinutes", minutes + "");
-            if (minutes == 0) minutes = -1;
         } else {
             minutes = -1;
         }
@@ -136,6 +135,7 @@ public class AlarmService extends Service {
                 alarmAfterMinutes = 10;
             }
             new Thread(new AfterThread()).start();
+
         }
     }
 
@@ -157,11 +157,11 @@ public class AlarmService extends Service {
 
         @Override
         public void run() {
-            while (true) {
-                if (items != null && items.size() > 0) {
-                    minutes = TimeUtil.getAfterMinutes(items.get(0).getAlarm_time(), items.get(0).getAlarm_day());
+            if (items != null && items.size() > 0) {
+                minutes = TimeUtil.getAfterMinutes(items.get(0).getAlarm_time(), items.get(0).getAlarm_day());
+                Log.i("minutes", minutes + "");
+                while (true) {
                     if (minutes > 80) {
-                        Log.i("minutes", minutes + "");
                         try {
                             Thread.sleep(60 * 60 * 1000);
                         } catch (InterruptedException e) {
@@ -170,16 +170,14 @@ public class AlarmService extends Service {
                         if (items != null && items.size() > 0)
                             minutes = TimeUtil.getAfterMinutes(items.get(0).getAlarm_time(), items.get(0).getAlarm_day());
                     } else if (minutes > 30) {
-                        Log.i("minutes", minutes + "");
                         try {
-                            Thread.sleep(10 * 60 * 1000);
+                            Thread.sleep(20 * 60 * 1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                         if (items != null && items.size() > 0)
                             minutes = TimeUtil.getAfterMinutes(items.get(0).getAlarm_time(), items.get(0).getAlarm_day());
-                    } else if (minutes > 10) {
-                        Log.i("minutes", minutes + "");
+                    } else if (minutes > 5) {
                         try {
                             Thread.sleep(5 * 60 * 1000);
                         } catch (InterruptedException e) {
@@ -187,7 +185,6 @@ public class AlarmService extends Service {
                         }
                         minutes -= 5;
                     } else if (minutes > 0) {
-                        Log.i("minutes", minutes + "");
                         try {
                             Thread.sleep(60 * 1000);
                         } catch (InterruptedException e) {
@@ -197,7 +194,6 @@ public class AlarmService extends Service {
                     } else if (minutes == 0) {
                         minutes = -1;
                         mHandler.sendEmptyMessage(IS_SHOULD_ALARM);
-                        Log.i("minutes", minutes + "");
                         try {
                             Thread.sleep(60 * 1000);
                             sortListByNearTime();
