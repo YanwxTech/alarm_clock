@@ -68,6 +68,7 @@ public class DBDaoImp implements DBDao<AlarmClockItem> {
             }
             cursor.close();
         }
+        db.close();
         return items;
     }
 
@@ -116,6 +117,7 @@ public class DBDaoImp implements DBDao<AlarmClockItem> {
             }
             cursor.close();
         }
+        db.close();
         return items;
     }
 

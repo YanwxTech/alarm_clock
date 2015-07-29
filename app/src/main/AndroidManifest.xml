@@ -45,6 +45,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="com.yvan.alarmclock.service.action.RESTART_SERVICE"/>
+                <action android:name="android.intent.action.PACKAGE_RESTARTED"/>
             </intent-filter>
         </receiver>
 

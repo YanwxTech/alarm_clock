@@ -1,6 +1,8 @@
 package com.yvan.alarmclock.service;
 
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
@@ -9,6 +11,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.yvan.alarmclock.activity.AlarmActivity;
 import com.yvan.alarmclock.bean.AlarmClockItem;
@@ -29,44 +32,14 @@ public class AlarmService extends Service {
     private static List<AlarmClockItem> items;
     private static AlarmClockItem afterItem;
 
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case IS_SHOULD_ALARM:
-                    afterItem = items.get(0);
-                    startAlarmAty();
-                    break;
-                case AFTER_ALARM:
-                    startAlarmAty();
-                    break;
-            }
-        }
-    };
-    private SharedPreferences spf;
-
-    private void startAlarmAty() {
-        //仅响一次，关闭开启状态
-        if (afterItem.getAlarm_day().equals(TimeUtil.ONLY_ONCE)) {
-            dbDao.update(afterItem.getAlarm_id(), false);
-        }
-        Intent intent = new Intent(AlarmService.this, AlarmActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        String ring_time = spf.getString("alarm_all_time", "20分钟");
-        String keyDownOperation = spf.getString("alarm_key_down", "10分钟");
-        boolean is_silence_ring = spf.getBoolean("alarm_at_silence", true);
-        intent.putExtra("ringtone_uri", afterItem.getVoicePath());
-        intent.putExtra("is_vibrated", afterItem.isVibrated());
-        intent.putExtra("alarm_content", afterItem.getAlarm_content());
-        intent.putExtra("ring_time", ring_time);
-        intent.putExtra("alarm_key_down", keyDownOperation);
-        intent.putExtra("is_silence_ring", is_silence_ring);
-        startActivity(intent);
-    }
-
     public static volatile int minutes = -1;
     public static int alarmAfterMinutes = 10;
     private static Thread alarmThread;
+
+    private SharedPreferences spf;
+    private String interval;
+
+    private boolean isShouldCancel;
 
     public AlarmService() {
     }
@@ -80,7 +53,20 @@ public class AlarmService extends Service {
         alarmThread.start();
     }
 
-//    private AlarmClockItem getNearItem() {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            isShouldCancel = intent.getBooleanExtra("is_should_cancel", false);
+        }
+        if (isShouldCancel) {
+            Toast.makeText(AlarmService.this, "已取消该闹钟", Toast.LENGTH_SHORT).show();
+        }
+
+        flags = START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    //    private AlarmClockItem getNearItem() {
 //        int size = items.size();
 //        int[] nearTimes = new int[size];
 //        for (int i = 0; i < size; i++) {
@@ -128,7 +114,6 @@ public class AlarmService extends Service {
 
     public class MyBinder extends Binder {
         public void alarmAfter() {
-            String interval = spf.getString("alarm_interval", "10分钟");
             try {
                 alarmAfterMinutes = Integer.parseInt(interval.substring(0, interval.indexOf("分")));
             } catch (NumberFormatException e) {
@@ -137,6 +122,10 @@ public class AlarmService extends Service {
             new Thread(new AfterThread()).start();
 
         }
+
+//        public void cancleAfterAlarm() {
+//            isShouldCancel = true;
+//        }
     }
 
     class AfterThread implements Runnable {
@@ -145,7 +134,11 @@ public class AlarmService extends Service {
         public void run() {
             try {
                 Thread.sleep(alarmAfterMinutes * 60 * 1000);
-                mHandler.sendEmptyMessage(AFTER_ALARM);
+                if (!isShouldCancel) {
+                    mHandler.sendEmptyMessage(AFTER_ALARM);
+                } else {
+                    isShouldCancel = false;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -205,5 +198,47 @@ public class AlarmService extends Service {
                 }
             }
         }
+    }
+
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case IS_SHOULD_ALARM:
+                    afterItem = items.get(0);
+                    startAlarmAty();
+                    break;
+                case AFTER_ALARM:
+                    clearNotification();
+                    startAlarmAty();
+                    break;
+            }
+        }
+    };
+
+    private void clearNotification() {
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(0);
+    }
+
+    private void startAlarmAty() {
+        //仅响一次，关闭开启状态
+        if (afterItem.getAlarm_day().equals(TimeUtil.ONLY_ONCE)) {
+            dbDao.update(afterItem.getAlarm_id(), false);
+        }
+        Intent intent = new Intent(AlarmService.this, AlarmActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        String ring_time = spf.getString("alarm_all_time", "20分钟");
+        String keyDownOperation = spf.getString("alarm_key_down", "稍后再响");
+        boolean is_silence_ring = spf.getBoolean("alarm_at_silence", true);
+        interval = spf.getString("alarm_interval", "10分钟");
+        intent.putExtra("ringtone_uri", afterItem.getVoicePath());
+        intent.putExtra("is_vibrated", afterItem.isVibrated());
+        intent.putExtra("alarm_content", afterItem.getAlarm_content());
+        intent.putExtra("ring_time", ring_time);
+        intent.putExtra("alarm_key_down", keyDownOperation);
+        intent.putExtra("is_silence_ring", is_silence_ring);
+        intent.putExtra("interval", interval);
+        startActivity(intent);
     }
 }

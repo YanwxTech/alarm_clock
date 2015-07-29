@@ -14,9 +14,9 @@
         android:layout_centerInParent="true"
         android:background="@drawable/circle_bg"
         android:gravity="center"
-        android:text="稍后\n再响"
+        android:text="10分钟后\n再提醒"
         android:textColor="@color/white"
-        android:textSize="35sp" />
+        android:textSize="30sp" />
 
 
     <TextView
@@ -40,12 +40,11 @@
         android:layout_marginTop="20dp"
         android:gravity="center_horizontal"
         android:maxLines="5"
-        android:text="内容显示"
         android:textColor="@color/black"
         android:textSize="25sp"
         android:textStyle="bold" />
 
-    <TextClock
+<!--    <TextClock
         android:id="@+id/textClock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,7 +55,8 @@
         android:textColor="@color/black"
         android:textSize="60sp"
         android:textStyle="bold"
-        tools:targetApi="17" />
+        tools:targetApi="17"
+         />-->
 
     <DigitalClock
         android:id="@+id/digitalClock"
@@ -68,6 +68,6 @@
         android:textColor="@color/black"
         android:textSize="60sp"
         android:textStyle="bold"
-        android:visibility="gone" />
+         />
 
 </RelativeLayout>
